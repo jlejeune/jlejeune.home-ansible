@@ -1,0 +1,26 @@
+---
+- name: Delete helm if already present
+  ansible.builtin.file:
+    path: /usr/local/bin/helm
+    state: absent
+
+- name: Download helm archive
+  ansible.builtin.get_url:
+    url: "https://get.helm.sh/helm-{{ helm_version }}-linux-arm64.tar.gz"
+    dest: /tmp
+
+- name: Extract helm archive
+  ansible.builtin.unarchive:
+    src: "/tmp/helm-{{ helm_version }}-linux-arm64.tar.gz"
+    dest: /tmp
+    remote_src: yes
+
+- name: Move helm binary to /usr/local/bin/ folder
+  command: mv /tmp/linux-arm64/helm /usr/local/bin/helm
+
+- name: Change helm ownership, group and mode
+  ansible.builtin.file:
+    path: /usr/local/bin/helm
+    owner: root
+    group: root
+    mode: '0755'

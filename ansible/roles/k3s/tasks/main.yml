@@ -1,0 +1,6 @@
+---
+- include_tasks:
+    file: download-k3s.yml
+
+- include_tasks:
+    file: configure-cgroup.yml

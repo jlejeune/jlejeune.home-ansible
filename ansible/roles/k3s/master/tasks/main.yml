@@ -1,0 +1,24 @@
+---
+- include_tasks:
+    file: download-helm.yml
+    apply:
+      tags: download-helm
+  tags: download-helm
+
+- include_tasks:
+    file: download-k9s.yml
+    apply:
+      tags: download-k9s
+  tags: download-k9s
+
+- include_tasks:
+    file: configure-k3s.yml
+    apply:
+      tags: configure-k3s
+  tags: configure-k3s
+
+- include_tasks:
+    file: configure-flux.yml
+    apply:
+      tags: configure-flux
+  tags: configure-flux

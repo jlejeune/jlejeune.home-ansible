@@ -1,0 +1,11 @@
+---
+# TODO:
+# - copy age file from workstation on the master node
+# - install sops on master node
+# - copy the whole cluster directory on the master node
+# - run these commands:
+#   - kubectl apply --kustomize {{.CLUSTER_DIR}}/bootstrap/
+#   - cat {{.SOPS_AGE_KEY_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
+#   - kubectl apply --kustomize {{.CLUSTER_DIR}}/flux/flux-system/
+#   - flux reconcile -n flux-system source git flux-cluster
+#   - flux reconcile -n flux-system kustomization flux-cluster

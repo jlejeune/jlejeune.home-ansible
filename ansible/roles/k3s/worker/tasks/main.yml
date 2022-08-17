@@ -1,0 +1,6 @@
+---
+- include_tasks:
+    file: configure-k3s.yml
+    apply:
+      tags: configure-k3s
+  tags: configure-k3s

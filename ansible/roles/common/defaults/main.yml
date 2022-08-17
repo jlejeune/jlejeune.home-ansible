@@ -1,0 +1,15 @@
+---
+system_locale: "en_US.UTF-8"
+system_language: "en_US.UTF-8"
+system_timezone: "Europe/Paris"
+boot_config:
+  - "gpu_mem=64"
+  - "dtoverlay=disable-wifi"
+  - "dtoverlay=disable-bt"
+  - "hdmi_force_hotplug=1"
+  - "hdmi_group=2"
+  - "hdmi_mode=87"
+  - "hdmi_cvt=800 480 60 6"
+  - "hdmi_drive=1"
+  - "config_hdmi_boost=5"
+plik_version: "1.3.6"

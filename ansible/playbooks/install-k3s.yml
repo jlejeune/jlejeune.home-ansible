@@ -1,0 +1,21 @@
+---
+- name: Download k3s
+  hosts: k3s_cluster
+  become: yes
+  roles:
+    - k3s
+
+- name: Configure k3s master
+  hosts: k3s_master
+  become: yes
+  roles:
+    - k3s/master
+
+- name: Configure k3s workers
+  hosts: k3s_workers
+  become: yes
+  roles:
+    - k3s/worker
+
+# TODO: add a task to set a role label to workers from master
+# kubectl label nodes <worker_node_name> kubernetes.io/role=worker

@@ -1,0 +1,4 @@
+---
+k3s_node_extra_args: "--node-label 'node_type=worker'"
+systemd_dir: /etc/systemd/system
+k3s_master_ip: "{{ hostvars[groups['k3s_master'][0]]['ansible_host'] | default(groups['k3s_master'][0]) }}"

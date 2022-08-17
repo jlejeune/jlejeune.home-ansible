@@ -1,0 +1,15 @@
+---
+- name: Disable bluetooth service
+  ansible.builtin.command: systemctl disable hciuart
+
+- name: Adjust /boot/config.txt
+  lineinfile:
+    line: '{{ item }}'
+    dest: /boot/config.txt
+    regexp: "^{{ item }}"
+  with_items: '{{ boot_config }}'
+  notify: reboot
+
+- name: Disable console auto login
+  ansible.builtin.command: raspi-config nonint do_boot_behaviour B1
+  notify: reboot

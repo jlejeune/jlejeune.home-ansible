@@ -1,0 +1,42 @@
+---
+- include_tasks:
+    file: hostname.yml
+    apply:
+      tags: hostname
+  tags: hostname
+
+- include_tasks:
+    file: locale.yml
+    apply:
+      tags: locale
+  tags: locale
+
+- include_tasks:
+    file: packages.yml
+    apply:
+      tags: packages
+  tags: packages
+
+- include_tasks:
+    file: raspi-config.yml
+    apply:
+      tags: raspi-config
+  tags: raspi-config
+
+- include_tasks:
+    file: ip.yml
+    apply:
+      tags: ip
+  tags: ip
+
+- include_tasks:
+    file: user.yml
+    apply:
+      tags: user
+  tags: user
+
+- include_tasks:
+    file: download-plik.yml
+    apply:
+      tags: download-plik
+  tags: download-plik

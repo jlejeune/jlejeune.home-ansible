@@ -1,0 +1,30 @@
+---
+- name: Update packages
+  apt: update_cache=yes upgrade=dist
+
+- name: Install common packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+    - htop
+    - lnav
+    - manpages
+    - mosh
+    - net-tools
+    - openssl
+    - pciutils
+    - postfix
+    - ntp
+    - ntpdate
+    - rsync
+    - screen
+    - tmux
+    - tree
+    - tzdata
+    - ufw
+    - unzip
+    - vim
+    - zsh

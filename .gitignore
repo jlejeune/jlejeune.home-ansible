@@ -1,0 +1,7 @@
+# k8s
+kubeconfig*
+# sops
+.decrypted~*.yaml
+*.agekey
+*.pub
+*.key
