@@ -1,11 +1,11 @@
 ---
 - name: Delete k9s if already present
-  file:
+  ansible.builtin.file:
     path: /usr/local/bin/k9s
     state: absent
 
 - name: Download k9s archive
-  get_url:
+  ansible.builtin.get_url:
     url: "https://github.com/derailed/k9s/releases/download/{{ k9s_version }}/k9s_Linux_arm64.tar.gz"
     dest: /tmp
 
@@ -16,10 +16,10 @@
     remote_src: yes
 
 - name: Move k9s binary to /usr/local/bin/ folder
-  command: mv /tmp/k9s /usr/local/bin/k9s
+  ansible.builtin.command: mv /tmp/k9s /usr/local/bin/k9s
 
 - name: Change k9s ownership, group and mode
-  file:
+  ansible.builtin.file:
     path: /usr/local/bin/k9s
     owner: root
     group: root
