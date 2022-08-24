@@ -10,3 +10,6 @@ k9s_version: v0.26.3
 
 # helm
 helm_version: v3.9.3
+
+# sops
+sops_version: v3.7.3
