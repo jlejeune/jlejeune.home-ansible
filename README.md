@@ -101,12 +101,23 @@ ansible-playbook playbooks/install-k3s.yml
 ansible-playbook playbooks/bootstrap.yml
 ```
 
-### Install k3s
+### k3s
+#### Install
 ```sh
 ansible-playbook playbooks/install-k3s.yml
 ```
-
-#### Uninstall k3s
+#### Uninstall
 ```sh
 ansible-playbook playbooks/uninstall-k3s.yml
+```
+
+### flux
+#### Sync on a dev branch
+```sh
+ansible-playbook playbooks/patch-flux-branch.yml --extra-vars "branch=dev"
+```
+
+#### Go back on master branch
+```sh
+ansible-playbook playbooks/revert-flux-branch.yml
 ```
