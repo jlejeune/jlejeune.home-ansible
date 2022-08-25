@@ -18,3 +18,4 @@
 
   - name: Manually sync the config
     ansible.builtin.command: flux reconcile kustomization apps
+    no_log: True
