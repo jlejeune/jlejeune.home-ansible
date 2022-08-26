@@ -17,5 +17,10 @@
   roles:
     - k3s/worker
 
-# TODO: add a task to set a role label to workers from master
-# kubectl label nodes <worker_node_name> kubernetes.io/role=worker
+- name: Define k3s workers role
+  hosts: k3s_master
+  become: yes
+  tasks:
+    - ansible.builtin.command: >-
+        kubectl label nodes {{ item }} kubernetes.io/role=worker --overwrite
+      with_items: "{{ groups.k3s_workers }}"
