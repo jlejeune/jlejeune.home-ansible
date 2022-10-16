@@ -1,0 +1,80 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: blocky
+  namespace: networking
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: blocky
+      version: 10.5.2
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home-charts
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: ghcr.io/0xerr0r/blocky
+      tag: v0.19
+    env:
+      TZ: "${TZ}"
+    service:
+      main:
+        enabled: true
+        ports:
+          http:
+            port: 4000
+      dns-tcp:
+        enabled: true
+        type: LoadBalancer
+        loadBalancerIP: "${LB_BLOCKY_ADDRESS}"
+        ports:
+          dns-tcp:
+            enabled: true
+            port: 53
+            protocol: TCP
+            targetPort: 53
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.universe.tf/allow-shared-ip: blocky
+      dns-udp:
+        enabled: true
+        type: LoadBalancer
+        loadBalancerIP: "${LB_BLOCKY_ADDRESS}"
+        ports:
+          dns-udp:
+            enabled: true
+            port: 53
+            protocol: UDP
+            targetPort: 53
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.universe.tf/allow-shared-ip: blocky
+    nodeSelector:
+      node-role.kubernetes.io/worker: "true"
+    metrics:
+      enabled: true
+      serviceMonitor:
+        interval: 30s
+        scrapeTimeout: 10s
+      prometheusRule:
+        enabled: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 500Mi
+    config: |
+      upstream:
+        default:
+        - 1.1.1.1
+      prometheus:
+        enable: true
+        path: /metrics
+      httpPort: 4000
+      logLevel: info

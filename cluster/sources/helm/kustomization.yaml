@@ -6,6 +6,7 @@ resources:
   - botkube-charts.yaml
   - grafana-charts.yaml
   - jetstack-charts.yaml
+  - k8s-at-home-charts.yaml
   - longhorn-charts.yaml
   - metallb-charts.yaml
   - node-feature-discovery-charts.yaml

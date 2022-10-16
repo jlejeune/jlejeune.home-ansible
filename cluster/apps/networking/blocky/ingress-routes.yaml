@@ -1,0 +1,22 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: blocky
+  namespace: networking
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: "Host(`blocky.${SECRET_DOMAIN}`) && PathPrefix(`/`)"
+      services:
+        - kind: Service
+          name: blocky
+          namespace: networking
+          port: 4000
+      middlewares:
+        - name: security-header
+          namespace: networking
+  tls:
+    secretName: "${SECRET_DOMAIN}-tls"
