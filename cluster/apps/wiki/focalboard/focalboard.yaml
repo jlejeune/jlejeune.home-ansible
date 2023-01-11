@@ -1,0 +1,117 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: focalboard
+  namespace: wiki
+  labels:
+    app.kubernetes.io/instance: focalboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: focalboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: focalboard
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: focalboard
+          image: nicoulaj/focalboard:0.6.5
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: FOCALBOARD_PORT
+              value: "8000"
+          ports:
+            - containerPort: 8000
+              name: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          volumeMounts:
+            - name: focalboard-data
+              mountPath: /data
+      volumes:
+        - name: focalboard-data
+          persistentVolumeClaim:
+            claimName: focalboard-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: focalboard
+  name: focalboard
+  namespace: wiki
+spec:
+  selector:
+    app.kubernetes.io/instance: focalboard
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: focalboard-http
+  namespace: wiki
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: "Host(`wiki.${SECRET_DOMAIN}`) && PathPrefix(`/`)"
+      middlewares:
+        - name: redirect-https
+          namespace: networking
+      services:
+        - kind: Service
+          name: focalboard
+          namespace: wiki
+          port: 8000
+          scheme: http
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: focalboard-https
+  namespace: wiki
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: "Host(`wiki.${SECRET_DOMAIN}`) && PathPrefix(`/`)"
+      middlewares:
+        - name: security-header
+          namespace: networking
+      services:
+        - kind: Service
+          name: focalboard
+          namespace: wiki
+          port: 8000
+          scheme: http
+  tls:
+    secretName: "${SECRET_DOMAIN}-tls"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/instance: focalboard
+  name: focalboard-data
+  namespace: wiki
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: longhorn
