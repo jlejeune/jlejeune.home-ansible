@@ -1,0 +1,138 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dokuwiki
+  namespace: wiki
+  labels:
+    app.kubernetes.io/instance: dokuwiki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: dokuwiki
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: dokuwiki
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: dokuwiki
+          image: linuxserver/dokuwiki:version-2022-07-31a
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "${TZ}"
+          ports:
+            - containerPort: 80
+              name: http
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          volumeMounts:
+            - name: dokuwiki-data
+              mountPath: /config
+      volumes:
+        - name: dokuwiki-data
+          persistentVolumeClaim:
+            claimName: dokuwiki-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: dokuwiki
+  name: dokuwiki
+  namespace: wiki
+spec:
+  selector:
+    app.kubernetes.io/instance: dokuwiki
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dokuwiki-http
+  namespace: wiki
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: "Host(`wiki.${SECRET_DOMAIN}`) && PathPrefix(`/`)"
+      middlewares:
+        - name: redirect-https
+          namespace: networking
+      services:
+        - kind: Service
+          name: dokuwiki
+          namespace: wiki
+          port: 80
+          scheme: http
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dokuwiki-https
+  namespace: wiki
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: "Host(`wiki.${SECRET_DOMAIN}`) && PathPrefix(`/`)"
+      middlewares:
+        - name: security-header
+          namespace: networking
+      services:
+        - kind: Service
+          name: dokuwiki
+          namespace: wiki
+          port: 80
+          scheme: http
+  tls:
+    secretName: "${SECRET_DOMAIN}-tls"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dokuwiki-data
+  namespace: wiki
+spec:
+  storageClassName: longhorn
+  persistentVolumeReclaimPolicy: Retain
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      numberOfReplicas: '2'
+      staleReplicaTimeout: '30'
+    volumeHandle: pvc-fad74c9d-f49d-443e-8689-b4b2bed32eff
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/instance: dokuwiki
+  name: dokuwiki-data
+  namespace: wiki
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: longhorn
