@@ -1,0 +1,88 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  namespace: database
+  labels:
+    app.kubernetes.io/instance: mariadb
+spec:
+  ports:
+    - port: 3306
+      name: mariadb
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mariadb
+  namespace: database
+  labels:
+    app.kubernetes.io/instance: mariadb
+spec:
+  serviceName: mariadb
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: mariadb
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: mariadb
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: mariadb
+          image: mariadb:jammy
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3306
+              name: mariadb
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb
+                  key: mariadb-root-password
+          volumeMounts:
+            - name: mariadb
+              mountPath: /var/lib/mysql/
+      volumes:
+        - name: mariadb
+          persistentVolumeClaim:
+            claimName: mariadb
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mariadb
+  namespace: database
+spec:
+  storageClassName: longhorn
+  persistentVolumeReclaimPolicy: Retain
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      numberOfReplicas: '2'
+      staleReplicaTimeout: '2880'
+    volumeHandle: mariadb
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/instance: mariadb
+  name: mariadb
+  namespace: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: longhorn
