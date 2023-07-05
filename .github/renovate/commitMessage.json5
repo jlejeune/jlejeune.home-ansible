@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "commitMessagePrefix": "Changed: "
+  "commitMessageTopic": "upgrade {{depName}} to {{newVersion}}",
+  "commitMessageExtra": "",
+  "commitMessageSuffix": "",
+  "packageRules": [
+    {
+      "matchDatasources": ["helm"],
+      "commitMessageTopic": "upgrade chart {{depName}} to {{newVersion}}"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "commitMessageTopic": "upgrade image {{depName}} to {{newVersion}}"
+    }
+  ]
+}
