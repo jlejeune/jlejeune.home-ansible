@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: room-assistant
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/instance: room-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: room-assistant
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: room-assistant
+    spec:
+      containers:
+        - name: room-assistant
+          image: mkerix/room-assistant:2.20.0
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: config-file
+              mountPath: /room-assistant/config
+            - name: dbus
+              mountPath: /var/run/dbus
+          securityContext:
+            privileged: true
+      hostNetwork: true
+      volumes:
+        - name: config-file
+          configMap:
+            name: room-assistant
+        - name: dbus
+          hostPath:
+            path: /var/run/dbus
+      nodeSelector:
+        feature.node.kubernetes.io/custom-bluetooth: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: room-assistant
+  namespace: home-automation
+data:
+  local.yml: |
+    global:
+      instanceName: House
+      integrations:
+        - homeAssistant
+        - bluetoothLowEnergy
+    homeAssistant:
+      discoveryPrefix: homeassistant
+      mqttUrl: mqtts://${LB_MQTT_ADDRESS}:8883
+      mqttOptions:
+        username: roomassistant
+        password: ${SECRET_RA_MQTT_PASSWORD}
+        rejectUnauthorized: false
+    bluetoothLowEnergy:
+      instanceBeaconEnabled: false
+      hciDeviceId: 1
+      allowlist:
+        - 0cc413d948a2

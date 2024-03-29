@@ -5,4 +5,5 @@ resources:
   - home-assistant
   - mosquitto
   - namespace.yaml
+  - room-assistant
   - zigbee2mqtt

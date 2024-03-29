@@ -132,6 +132,7 @@ data:
     homeassistant:$7$101$qhRjwnzNmRpTP54v$mMEma60H9AZtN9S0rUpuvfk54aj37BNw5aOI7snFqhg3MX8vypz3rq8+AcnOzikXw3GV7FYUdqmdXkl46U608g==
     owntracks:$7$101$9oq3A9AHNJRkCsK5$gLzN3cV9k+97iIVWjylc0EgUKz9aQYp+tZ+SOWJigz0I2C6S3Yv1Lb2wkunFmM5mtUiFgUDD5lGuCwzdmrDWXg==
     zigbee2mqtt:$7$101$QKN5Ghmr4QaiXn5A$KB42itqcWqjjghNpkhlZLsEHRo5Yu28Z9HGmQNvu+dMs/Ra/e+zk3XwQyawsdthUYVFhdt29KnMRNMUGpwrXxA==
+    roomassistant:$7$101$qbqvFlMcQ/cucKGI$1blNle66cZu+sP7wrHz8ROgj1k6o9/cO26rCViFMbG1PNSy1teQ/et/VGi89Zjk+eorDwDJ+8htRn0XFSfLe/w==
   mosquitto.acl: |
     user homeassistant
     topic readwrite #
@@ -140,6 +141,9 @@ data:
     topic readwrite #
 
     user zigbee2mqtt
+    topic readwrite #
+
+    user roomassistant
     topic readwrite #
 ---
 apiVersion: cert-manager.io/v1
