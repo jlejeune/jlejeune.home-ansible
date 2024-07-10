@@ -34,7 +34,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: owntracks-frontend
-          image: owntracks/frontend:2.12.0
+          image: owntracks/frontend:2.15.3
           imagePullPolicy: IfNotPresent
           env:
             - name: SERVER_HOST
