@@ -573,3 +573,30 @@ spec:
           port: 443
   tls:
     secretName: "${SECRET_DOMAIN}-tls"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: go2rtc
+  namespace: networking
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: go2rtc.${SECRET_DOMAIN}
+    external-dns.alpha.kubernetes.io/target: ${SECRET_DYNAMIC_DOMAIN}
+    kubernetes.io/ingress.class: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: "Host(`go2rtc.${SECRET_DOMAIN}`) && PathPrefix(`/`)"
+      middlewares:
+        - name: security-header
+          namespace: networking
+      services:
+        - kind: Service
+          name: go2rtc
+          namespace: home-automation
+          port: 443
+          scheme: https
+  tls:
+    secretName: "${SECRET_DOMAIN}-tls"
