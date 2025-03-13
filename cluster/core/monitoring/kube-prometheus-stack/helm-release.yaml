@@ -39,9 +39,9 @@ spec:
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
     kubeApiServer:
-      enabled: false
+      enabled: true
     kubeControllerManager:
-      enabled: false
+      enabled: true
     kubeEtcd:
       enabled: false
     kubeProxy:
@@ -49,7 +49,7 @@ spec:
     kubeScheduler:
       enabled: false
     kubelet:
-      enabled: false
+      enabled: true
     nameOverride: ""
     prometheus:
       ingress:
@@ -72,9 +72,9 @@ spec:
               storageClassName: longhorn
         walCompression: true
       thanosService:
-        enabled: false
+        enabled: true
       thanosServiceMonitor:
-        enabled: false
+        enabled: true
     prometheus-node-exporter:
       fullnameOverride: node-exporter
     prometheusOperator:
