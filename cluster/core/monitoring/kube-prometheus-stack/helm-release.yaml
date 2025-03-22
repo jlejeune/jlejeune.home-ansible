@@ -13,7 +13,7 @@ spec:
         kind: HelmRepository
         name: prometheus-community-charts
         namespace: flux-system
-      version: 70.0.2
+      version: 70.2.1
   dependsOn:
     - name: longhorn
       namespace: storage
