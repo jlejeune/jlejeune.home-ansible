@@ -42,7 +42,7 @@ spec:
           serviceAccountName: external-dns-writer
           containers:
             - name: dynamic-dns-operator
-              image: bitnami/kubectl:1.21
+              image: bitnami/kubectl:1.33
               command:
                 - /bin/sh
                 - -c
