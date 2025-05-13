@@ -1,0 +1,133 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openldap-data-pvc
+  namespace: openldap
+  labels:
+    app.kubernetes.io/instance: openldap
+spec:
+  storageClassName: longhorn
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openldap
+  namespace: openldap
+  labels:
+    app.kubernetes.io/instance: openldap
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openldap
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: openldap
+    spec:
+      containers:
+        - name: openldap
+          image: osixia/openldap:1.5.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LDAP_ROOT
+              value: dc=jlejeune,dc=home
+            - name: LDAP_ADMIN_DN
+              value: "${SECRET_LDAP_ADMIN_BIND_DN}"
+            - name: LDAP_USER_OU
+              value: users
+            - name: LDAP_GROUP_OU
+              value: groups
+            - name: LDAP_SKIP_DEFAULT_TREE
+              value: "yes"
+            - name: LDAP_TLS
+              value: "true"
+            - name: LDAP_TLS_CRT_FILENAME
+              value: "tls.crt"
+            - name: LDAP_TLS_KEY_FILENAME
+              value: "tls.key"
+            - name: LDAP_TLS_CA_CRT_FILENAME
+              value: "ca.crt"
+            - name: LDAP_TLS_ENFORCE
+              value: "false"
+          envFrom:
+            - secretRef:
+                name: openldap
+          ports:
+            - name: openldap
+              containerPort: 389
+            - name: openldaps
+              containerPort: 636
+          resources:
+            limits:
+              memory: 500Mi
+          args:
+            - '--copy-service'
+          volumeMounts:
+            - name: ldap-cert-secret
+              mountPath: /container/service/slapd/assets/certs/tls.key
+              subPath: tls.key
+            - name: ldap-cert-secret
+              mountPath: /container/service/slapd/assets/certs/tls.crt
+              subPath: tls.crt
+            - name: ldap-cert-secret
+              mountPath: /container/service/slapd/assets/certs/ca.crt
+              subPath: ca.crt
+            - name: ldap-data
+              mountPath: /var/lib/ldap
+              subPath: data
+            - name: ldap-data
+              mountPath: /etc/ldap/slapd.d
+              subPath: config-data
+          #securityContext:
+          #  allowPrivilegeEscalation: false
+          #  readOnlyRootFilesystem: true
+          #  runAsUser: 911
+          #  runAsGroup: 911
+      volumes:
+        - name: ldap-data
+          persistentVolumeClaim:
+            claimName: openldap-data-pvc
+        - name: ldap-cert-secret
+          secret:
+            secretName: openldap-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap
+  namespace: openldap
+  annotations:
+    metallb.io/loadBalancerIPs: ${LB_OPENLDAP_ADDRESS}
+spec:
+  type: LoadBalancer
+  ports:
+    - name: openldap
+      protocol: TCP
+      port: 389
+      targetPort: 389
+    - name: openldaps
+      protocol: TCP
+      port: 636
+      targetPort: 636
+  selector:
+    app.kubernetes.io/instance: openldap
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: openldap
+  namespace: openldap
+spec:
+  dnsNames:
+    - openldaps.${SECRET_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: jlejeune.home
+  secretName: openldap-tls
