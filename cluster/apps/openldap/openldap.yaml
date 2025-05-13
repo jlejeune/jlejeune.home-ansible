@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openldap
+  namespace: openldap
+  labels:
+    app.kubernetes.io/instance: openldap
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openldap
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: openldap
+    spec:
+      containers:
+        - name: openldap
+          image: docker.io/bitnami/openldap:2.6.9
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LDAP_ROOT
+              value: dc=jlejeune,dc=home
+            - name: LDAP_ADMIN_DN
+              value: "${SECRET_LDAP_ADMIN_BIND_DN}"
+            - name: LDAP_ADMIN_PASSWORD
+              value: "${SECRET_LDAP_ADMIN_QUERY_PASSWORD}"
+            - name: LDAP_USER_OU
+              value: users
+            - name: LDAP_GROUP_OU
+              value: groups
+            - name: LDAP_CUSTOM_LDIF_DIR
+              value: /ldifs
+            - name: LDAP_SKIP_DEFAULT_TREE
+              value: "yes"
+          ports:
+            - name: tcp-ldap
+              containerPort: 1389
+          resources:
+            limits:
+              memory: 500Mi
+          volumeMounts:
+            - mountPath: /ldifs
+              name: openldap-config
+      volumes:
+        - name: openldap-config
+          configMap:
+            name: openldap-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap
+  namespace: openldap
+  annotations:
+    metallb.io/loadBalancerIPs: ${LB_OPENLDAP_ADDRESS}
+spec:
+  type: LoadBalancer
+  ports:
+    - name: tcp-ldap
+      port: 1389
+      targetPort: tcp-ldap
+  selector:
+    app.kubernetes.io/instance: openldap
