@@ -1,0 +1,107 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openldap-data-pvc
+  namespace: openldap
+  labels:
+    app.kubernetes.io/instance: openldap
+spec:
+  storageClassName: longhorn
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openldap
+  namespace: openldap
+  labels:
+    app.kubernetes.io/instance: openldap
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openldap
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: openldap
+    spec:
+      containers:
+        - name: openldap
+          image: docker.io/bitnami/openldap:2.6.9
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LDAP_ROOT
+              value: dc=jlejeune,dc=home
+            - name: LDAP_ADMIN_DN
+              value: "${SECRET_LDAP_ADMIN_BIND_DN}"
+            - name: LDAP_ADMIN_PASSWORD
+              value: "${SECRET_LDAP_ADMIN_QUERY_PASSWORD}"
+            - name: LDAP_USER_OU
+              value: users
+            - name: LDAP_GROUP_OU
+              value: groups
+            - name: LDAP_CUSTOM_LDIF_DIR
+              value: /ldifs
+            - name: LDAP_SKIP_DEFAULT_TREE
+              value: "yes"
+          ports:
+            - name: openldap
+              containerPort: 389
+            - name: openldaps
+              containerPort: 636
+          resources:
+            limits:
+              memory: 500Mi
+          volumeMounts:
+            - name: ldap-data
+              mountPath: /var/lib/ldap
+            - name: ldap-cert
+              mountPath: /container/service/slapd/assets/certs
+              readOnly: true
+      volumes:
+        - name: ldap-data
+          persistentVolumeClaim:
+            claimName: openldap-data-pvc
+        - name: ldap-cert
+          secret:
+            secretName: openldap-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap
+  namespace: openldap
+  annotations:
+    metallb.io/loadBalancerIPs: ${LB_OPENLDAP_ADDRESS}
+spec:
+  type: LoadBalancer
+  ports:
+    - name: openldap
+      protocol: TCP
+      port: 389
+      targetPort: 389
+    - name: openldaps
+      protocol: TCP
+      port: 636
+      targetPort: 636
+  selector:
+    app.kubernetes.io/instance: openldap
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: openldap
+  namespace: openldap
+spec:
+  dnsNames:
+    - openldaps.${SECRET_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-production
+  secretName: openldap-tls
