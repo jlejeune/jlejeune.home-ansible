@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: openldap
-          image: docker.io/bitnami/openldap:2.6.9
+          image: docker.io/bitnami/openldap:2.6.10
           imagePullPolicy: IfNotPresent
           env:
             - name: LDAP_ROOT
