@@ -629,7 +629,7 @@ spec:
   entryPoints:
     - ldaps
   routes:
-    - match: "Host(`openldaps.${SECRET_DOMAIN}`) && PathPrefix(`/`)"
+    - match: "Host(`openldaps.jlejeune.home`) && PathPrefix(`/`)"
       services:
         - name: openldap
           port: 636

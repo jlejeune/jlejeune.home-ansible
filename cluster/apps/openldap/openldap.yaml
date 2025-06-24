@@ -36,28 +36,18 @@ spec:
           image: osixia/openldap:1.5.0
           imagePullPolicy: IfNotPresent
           env:
-            - name: LDAP_ROOT
+            - name: LDAP_DOMAIN
+              value: jlejeune.home
+            - name: LDAP_BASE_DN
               value: dc=jlejeune,dc=home
             - name: LDAP_ADMIN_DN
               value: "${SECRET_LDAP_ADMIN_BIND_DN}"
-            - name: LDAP_USER_OU
-              value: users
-            - name: LDAP_GROUP_OU
-              value: groups
-            - name: LDAP_SKIP_DEFAULT_TREE
-              value: "yes"
-            - name: LDAP_TLS
-              value: "true"
             - name: LDAP_TLS_CRT_FILENAME
               value: "tls.crt"
             - name: LDAP_TLS_KEY_FILENAME
               value: "tls.key"
-            - name: LDAP_TLS_CA_CRT_FILENAME
-              value: "ca.crt"
-            - name: LDAP_TLS_ENFORCE
-              value: "false"
             - name: LDAP_TLS_VERIFY_CLIENT
-              value: try
+              value: "try"
           envFrom:
             - secretRef:
                 name: openldap
@@ -116,7 +106,7 @@ metadata:
   namespace: openldap
 spec:
   dnsNames:
-    - openldaps.${SECRET_DOMAIN}
+    - openldaps.jlejeune.home
   issuerRef:
     kind: ClusterIssuer
     name: jlejeune.home
