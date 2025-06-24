@@ -56,6 +56,8 @@ spec:
               value: "ca.crt"
             - name: LDAP_TLS_ENFORCE
               value: "false"
+            - name: LDAP_TLS_VERIFY_CLIENT
+              value: try
           envFrom:
             - secretRef:
                 name: openldap
@@ -78,11 +80,6 @@ spec:
             - name: ldap-data
               mountPath: /etc/ldap/slapd.d
               subPath: config-data
-          #securityContext:
-          #  allowPrivilegeEscalation: false
-          #  readOnlyRootFilesystem: true
-          #  runAsUser: 911
-          #  runAsGroup: 911
       volumes:
         - name: ldap-data
           persistentVolumeClaim:
