@@ -40,8 +40,6 @@ spec:
               value: jlejeune.home
             - name: LDAP_BASE_DN
               value: dc=jlejeune,dc=home
-            - name: LDAP_ADMIN_DN
-              value: "${SECRET_LDAP_ADMIN_BIND_DN}"
             - name: LDAP_TLS_CRT_FILENAME
               value: "tls.crt"
             - name: LDAP_TLS_KEY_FILENAME
