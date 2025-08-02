@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - name: ollama
-          image: ollama/ollama:0.9.6
+          image: ollama/ollama:0.10.1
           env:
             - name: HOME
               value: /home/ollama
