@@ -5,5 +5,5 @@ resources:
   - namespace.yaml
   - openldap.yaml
   - openldap.secret.sops.yaml
-  - phpldapadmin.secret.sops.yaml
-  - phpldapadmin.yaml
+  - lam.secret.sops.yaml
+  - lam.yaml

@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lam
+  namespace: openldap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lam
+  template:
+    metadata:
+      labels:
+        app: lam
+    spec:
+      containers:
+        - name: lam
+          image: ldapaccountmanager/lam:latest
+          env:
+            - name: LAM_LDAP_SERVER
+              value: "openldap"       # nom du Service OpenLDAP
+            - name: LAM_LDAP_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: lam-ldap-secret
+                  key: LDAP_BASE
+            - name: LAM_LDAP_BINDDN
+              valueFrom:
+                secretKeyRef:
+                  name: lam-ldap-secret
+                  key: LDAP_BINDDN
+            - name: LAM_LDAP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lam-ldap-secret
+                  key: LDAP_PASSWORD
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lam
+  namespace: openldap
+spec:
+  selector:
+    app: lam
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
