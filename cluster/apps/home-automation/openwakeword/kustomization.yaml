@@ -2,4 +2,29 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ../../../config
   - openwakeword.yaml
+replacements:
+  - source:
+      kind: ConfigMap
+      name: cluster-settings
+      fieldPath: data.TZ
+    targets:
+      - select:
+          kind: Deployment
+          name: openwakeword
+          namespace: home-automation
+        fieldPaths:
+          - spec.template.spec.containers.[name=openwakeword].env.[name=TZ].value
+  - source:
+      kind: ConfigMap
+      name: cluster-settings
+      namespace: default
+      fieldPath: data.LB_OPENWAKEWORD_ADDRESS
+    targets:
+      - select:
+          kind: Service
+          name: openwakeword
+          namespace: home-automation
+        fieldPaths:
+          - metadata.annotations.[metallb.io/loadBalancerIPs]
