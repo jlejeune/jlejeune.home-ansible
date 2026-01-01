@@ -37,7 +37,7 @@ spec:
             # - 'ok_jarvis'
           env:
             - name: TZ
-              value: "${TZ}"
+              value: {{TZ}}
           ports:
             - name: openwakeword
               containerPort: 10400
@@ -56,7 +56,7 @@ metadata:
   name: openwakeword
   namespace: home-automation
   annotations:
-    metallb.io/loadBalancerIPs: ${LB_OPENWAKEWORD_ADDRESS}
+    metallb.io/loadBalancerIPs: {{LB_OPENWAKEWORD_ADDRESS}}
 spec:
   type: LoadBalancer
   selector:

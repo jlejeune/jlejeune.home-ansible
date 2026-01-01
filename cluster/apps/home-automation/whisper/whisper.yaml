@@ -39,7 +39,7 @@ spec:
             - fr
           env:
             - name: TZ
-              value: "${TZ}"
+              value: {{TZ}}
           ports:
             - name: whisper
               containerPort: 10300
@@ -58,7 +58,7 @@ metadata:
   name: whisper
   namespace: home-automation
   annotations:
-    metallb.io/loadBalancerIPs: ${LB_WHISPER_ADDRESS}
+    metallb.io/loadBalancerIPs: {{LB_WHISPER_ADDRESS}}
 spec:
   type: LoadBalancer
   selector:
