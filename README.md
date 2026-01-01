@@ -1,4 +1,4 @@
-# jlejeune.home-ansible
+# k3s-homelab
 
 These ansible playbooks configure a fresh deployment of a k3s cluster on 4 rapsberry pi 4.
 
@@ -18,7 +18,7 @@ Configure the raspberry pi:
 * Flash SD-card with last Raspbian lite release (64bit): enable ssh and configure password for pi user: raspberry
 
 ## Setting up Age
-Here we will create a Age Private and Public key. Using [SOPS](https://github.com/mozilla/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux.
+Here we will create a Age Private and Public key. Using [SOPS](https://github.com/mozilla/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Kubernetes.
 
 1. Create a Age Private / Public Key
 
@@ -94,7 +94,6 @@ ansible-playbook playbooks/install-k3s.yml
  * Download k3s binary
  * Configure k3s service on both nodes
  * Deploy kube-vip on master nodes
- * Install and configure flux v2 on first master node
 
 ## Ansible playbooks
 
@@ -175,20 +174,4 @@ Fill your hosts_vars usb_disk_uuid value in inventory.
 #### Mount the disks
 ```sh
 ansible k3s_workers -b -m ansible.posix.mount -a "path=/storage src=UUID={{ usb_disk_uuid }} fstype=ext4 state=mounted"
-```
-
-### flux
-#### Sync on a dev branch
-```sh
-ansible-playbook playbooks/patch-flux-branch.yml --extra-vars "branch=dev"
-```
-
-#### Go back on master branch
-```sh
-ansible-playbook playbooks/revert-flux-branch.yml
-```
-
-#### Upgrade flux
-```sh
-ansible-playbook playbooks/upgrade-flux.yml
 ```
